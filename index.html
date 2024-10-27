@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <!-- Ngăn zoom -->
     <title>Tính giá bán Shopee hòa vốn</title>
     <style>
         body {
@@ -28,10 +28,13 @@
             margin-right: 0; /* Không có khoảng cách bên phải cho ô cuối cùng */
         }
         .result {
-            font-size: 1.2em;
+            font-size: 1.5em; /* Kích thước chữ lớn hơn */
             color: green;
             margin-top: 20px; /* Khoảng cách trên cho kết quả */
-            margin-bottom: 20px; /* Khoảng cách dưới cho kết quả */
+            text-align: left; /* Căn trái kết quả */
+            padding: 10px; /* Đệm cho kết quả */
+            border-radius: 5px; /* Bo góc */
+            background-color: transparent; /* Bỏ viền */
         }
         .xtra-group {
             display: flex;
@@ -46,13 +49,13 @@
 <body>
 
     <h2>Tính giá bán Shopee hòa vốn</h2>
-    <div class="result" id="result">Giá bán tối thiểu để hòa vốn: 0 VNĐ</div>
+    <div class="result" id="result">Giá bán: 0 VNĐ</div> <!-- Thay đổi chữ hiển thị ở đây -->
 
     <label for="cost">Giá vốn sản phẩm (VNĐ):</label>
-    <input type="text" id="cost" placeholder="Nhập giá vốn" required oninput="formatNumber(this); updateBreakevenPrice()">
+    <input type="text" id="cost" placeholder="Nhập giá vốn" required oninput="formatNumber(this); updateBreakevenPrice()" inputmode="numeric">
 
     <label for="shipping">Tiền ship (VNĐ):</label>
-    <input type="text" id="shipping" placeholder="Mặc định 15,000" value="15,000" oninput="formatNumber(this); updateBreakevenPrice()">
+    <input type="text" id="shipping" placeholder="Mặc định 15,000" value="15,000" oninput="formatNumber(this); updateBreakevenPrice()" inputmode="numeric">
 
     <div class="xtra-group">
         <label for="fixedFee" class="small-input">Phí cố định (%):</label>
@@ -128,7 +131,7 @@
             const breakevenPrice = Math.ceil((cost + shipping) / (1 - totalFee));
 
             // Hiển thị kết quả với định dạng số
-            document.getElementById('result').innerHTML = `Giá bán tối thiểu để hòa vốn: ${breakevenPrice.toLocaleString('en-US')} VNĐ`;
+            document.getElementById('result').innerHTML = `Giá bán: ${breakevenPrice.toLocaleString('en-US')} VNĐ`;
         }
     </script>
 
