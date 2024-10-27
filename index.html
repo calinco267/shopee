@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính giá bán Shopee hòa vốn</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            box-sizing: border-box; /* Đảm bảo padding không làm tăng chiều rộng */
+        }
+        .small-input {
+            width: 48%; /* Kích thước nhỏ cho ô nhập */
+            margin-right: 2%; /* Khoảng cách giữa các ô */
+        }
+        .small-input:last-child {
+            margin-right: 0; /* Không có khoảng cách bên phải cho ô cuối cùng */
+        }
+        .result {
+            font-size: 1.2em;
+            color: green;
+            margin-top: 20px; /* Khoảng cách trên cho kết quả */
+            margin-bottom: 20px; /* Khoảng cách dưới cho kết quả */
+        }
+        .xtra-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .xtra-group input[type="checkbox"] {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Tính giá bán Shopee hòa vốn</h2>
+    <div class="result" id="result">Giá bán tối thiểu để hòa vốn: 0 VNĐ</div>
+
+    <label for="cost">Giá vốn sản phẩm (VNĐ):</label>
+    <input type="text" id="cost" placeholder="Nhập giá vốn" required oninput="formatNumber(this); updateBreakevenPrice()">
+
+    <label for="shipping">Tiền ship (VNĐ):</label>
+    <input type="text" id="shipping" placeholder="Mặc định 15,000" value="15,000" oninput="formatNumber(this); updateBreakevenPrice()">
+
+    <div class="xtra-group">
+        <label for="fixedFee" class="small-input">Phí cố định (%):</label>
+        <input type="number" id="fixedFee" class="small-input" placeholder="4" value="4" required oninput="updateBreakevenPrice()">
+        <label for="paymentFee" class="small-input">Phí thanh toán (%):</label>
+        <input type="number" id="paymentFee" class="small-input" placeholder="5" value="5" required oninput="updateBreakevenPrice()">
+    </div>
+
+    <div class="xtra-group">
+        <input type="checkbox" id="freeshipCheckbox" onchange="toggleFreeshipInput(); updateBreakevenPrice()">
+        <label for="freeshipCheckbox">Sử dụng Freeship Xtra</label>
+        <input type="number" id="freeshipXtra" class="small-input" placeholder="6" value="6" oninput="updateBreakevenPrice()">%
+    </div>
+
+    <div class="xtra-group">
+        <input type="checkbox" id="voucherCheckbox" onchange="toggleVoucherInput(); updateBreakevenPrice()">
+        <label for="voucherCheckbox">Sử dụng Voucher Xtra</label>
+        <input type="number" id="voucherXtra" class="small-input" placeholder="3" value="3" oninput="updateBreakevenPrice()">%
+    </div>
+
+    <script>
+        function toggleFreeshipInput() {
+            const freeshipInput = document.getElementById('freeshipXtra');
+            freeshipInput.disabled = !document.getElementById('freeshipCheckbox').checked; // Bật/tắt ô nhập
+            if (freeshipInput.disabled) freeshipInput.value = 6; // Đặt giá trị về mặc định nếu tắt
+        }
+
+        function toggleVoucherInput() {
+            const voucherInput = document.getElementById('voucherXtra');
+            voucherInput.disabled = !document.getElementById('voucherCheckbox').checked; // Bật/tắt ô nhập
+            if (voucherInput.disabled) voucherInput.value = 3; // Đặt giá trị về mặc định nếu tắt
+        }
+
+        function formatNumber(input) {
+            // Lấy giá trị và loại bỏ các ký tự không phải số
+            let value = input.value.replace(/[^0-9.]/g, ''); // Chỉ giữ lại số và dấu chấm
+            if (value) {
+                let parts = value.split('.');
+                // Định dạng phần nguyên với dấu phẩy
+                parts[0] = parseInt(parts[0]).toLocaleString('en-US');
+                // Đặt lại phần thập phân nếu có
+                input.value = parts.length > 1 ? parts[0] + '.' + parts[1] : parts[0];
+            } else {
+                input.value = ''; // Nếu không có giá trị thì để lại rỗng
+            }
+        }
+
+        function updateBreakevenPrice() {
+            // Lấy giá vốn và tiền ship, loại bỏ ký tự '.' (nếu có)
+            const cost = parseFloat(document.getElementById('cost').value.replace(/[.,]/g, ''));
+            let shipping = parseFloat(document.getElementById('shipping').value.replace(/[.,]/g, '')) || 15000; // Mặc định 15000 nếu không nhập
+            
+            // Lấy tỷ lệ phí cố định và phí thanh toán từ ô nhập liệu
+            const fixedFeeRate = parseFloat(document.getElementById('fixedFee').value) / 100; // Chuyển đổi sang tỷ lệ
+            const paymentFeeRate = parseFloat(document.getElementById('paymentFee').value) / 100; // Chuyển đổi sang tỷ lệ
+
+            // Kiểm tra xem Freeship Xtra và Voucher Xtra có được chọn không
+            const freeshipXtraRate = document.getElementById('freeshipCheckbox').checked
+                ? parseFloat(document.getElementById('freeshipXtra').value) / 100 // Chuyển đổi sang tỷ lệ
+                : 0; // Nếu không được chọn, giá trị là 0
+
+            const voucherXtraRate = document.getElementById('voucherCheckbox').checked
+                ? parseFloat(document.getElementById('voucherXtra').value) / 100 // Chuyển đổi sang tỷ lệ
+                : 0; // Nếu không được chọn, giá trị là 0
+
+            // Khởi tạo tổng phí với phí cố định
+            let totalFee = fixedFeeRate + freeshipXtraRate + voucherXtraRate;
+
+            // Tính toán phí ship theo yêu cầu
+            shipping = shipping * paymentFeeRate;
+
+            // Công thức tính giá bán tối thiểu để hòa vốn và làm tròn lên
+            const breakevenPrice = Math.ceil((cost + shipping) / (1 - totalFee));
+
+            // Hiển thị kết quả với định dạng số
+            document.getElementById('result').innerHTML = `Giá bán tối thiểu để hòa vốn: ${breakevenPrice.toLocaleString('en-US')} VNĐ`;
+        }
+    </script>
+
+</body>
+</html>
