@@ -77,16 +77,38 @@
     </div>
 
     <script>
+        // Hàm khôi phục dữ liệu từ localStorage
+        function restoreData() {
+            // document.getElementById('cost').value = localStorage.getItem('cost') || '';
+            document.getElementById('shipping').value = localStorage.getItem('shipping') || '15,000'; // Giá mặc định
+            document.getElementById('fixedFee').value = localStorage.getItem('fixedFee') || '4';
+            document.getElementById('paymentFee').value = localStorage.getItem('paymentFee') || '5';
+            document.getElementById('freeshipXtra').value = localStorage.getItem('freeshipXtra') || '6';
+            document.getElementById('voucherXtra').value = localStorage.getItem('voucherXtra') || '3';
+            document.getElementById('freeshipCheckbox').checked = localStorage.getItem('freeshipCheckbox') === 'true';
+            document.getElementById('voucherCheckbox').checked = localStorage.getItem('voucherCheckbox') === 'true';
+            toggleFreeshipInput(); // Khôi phục trạng thái freeship
+            toggleVoucherInput(); // Khôi phục trạng thái voucher
+            // updateBreakevenPrice(); // Cập nhật giá bán khi khôi phục
+        }
+
+        // Gọi hàm khôi phục dữ liệu khi trang được tải
+        window.onload = restoreData;
+
         function toggleFreeshipInput() {
             const freeshipInput = document.getElementById('freeshipXtra');
             freeshipInput.disabled = !document.getElementById('freeshipCheckbox').checked; // Bật/tắt ô nhập
             if (freeshipInput.disabled) freeshipInput.value = 6; // Đặt giá trị về mặc định nếu tắt
+            // Lưu trạng thái checkbox vào localStorage
+            localStorage.setItem('freeshipCheckbox', freeshipInput.disabled ? 'false' : 'true');
         }
 
         function toggleVoucherInput() {
             const voucherInput = document.getElementById('voucherXtra');
             voucherInput.disabled = !document.getElementById('voucherCheckbox').checked; // Bật/tắt ô nhập
             if (voucherInput.disabled) voucherInput.value = 3; // Đặt giá trị về mặc định nếu tắt
+            // Lưu trạng thái checkbox vào localStorage
+            localStorage.setItem('voucherCheckbox', voucherInput.disabled ? 'false' : 'true');
         }
 
         function formatNumber(input) {
@@ -101,6 +123,8 @@
             } else {
                 input.value = ''; // Nếu không có giá trị thì để lại rỗng
             }
+            // Lưu giá trị vào localStorage
+            localStorage.setItem(input.id, input.value.replace(/\./g, '')); // Lưu giá trị mà không có dấu phân cách
         }
 
         function updateBreakevenPrice() {
@@ -131,9 +155,8 @@
             const breakevenPrice = Math.ceil((cost + shipping) / (1 - totalFee));
 
             // Hiển thị kết quả với định dạng số
-            document.getElementById('result').innerHTML = `Giá bán: ${breakevenPrice.toLocaleString('en-US')} VNĐ`;
+            document.getElementById('result').innerHTML = `Giá bán: ${breakevenPrice.toLocaleString('en-US')} VNĐ`; // Định dạng kết quả
         }
     </script>
-
 </body>
 </html>
